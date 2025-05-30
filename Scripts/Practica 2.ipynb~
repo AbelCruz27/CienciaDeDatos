@@ -1,0 +1,2018 @@
+{
+ "cells": [
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "**Importar librerias**",
+   "id": "bbdb9bfb638940a8"
+  },
+  {
+   "cell_type": "code",
+   "id": "initial_id",
+   "metadata": {
+    "collapsed": true,
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:21:46.927976Z",
+     "start_time": "2025-03-06T04:21:46.635895Z"
+    }
+   },
+   "source": [
+    "import kagglehub\n",
+    "path = kagglehub.dataset_download(\"chitwanmanchanda/fraudulent-transactions-data\")\n",
+    "print(\"Path to dataset files:\", path)"
+   ],
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Path to dataset files: C:\\Users\\abelc\\.cache\\kagglehub\\datasets\\chitwanmanchanda\\fraudulent-transactions-data\\versions\\1\n"
+     ]
+    }
+   ],
+   "execution_count": 2
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "**Carga y exploración inicial de los datos**",
+   "id": "576641548789f965"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:29:06.492949Z",
+     "start_time": "2025-03-06T04:28:56.515517Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "import pandas as pd\n",
+    "df = pd.read_csv('C:/Users/abelc/PycharmProjects/Ciencia De Datos/BD/Fraud.csv')"
+   ],
+   "id": "6aa57e5bbc8a2b82",
+   "outputs": [],
+   "execution_count": 7
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": [
+    "Para asegurarnos de que los datos se han cargado correctamente, mostramos las primeras\n",
+    "filas del DataFrame utilizando head():"
+   ],
+   "id": "c2882b32cdac042b"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:29:32.406352Z",
+     "start_time": "2025-03-06T04:29:32.374868Z"
+    }
+   },
+   "cell_type": "code",
+   "source": "df.head()",
+   "id": "757100d478cd357c",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "   step      type    amount     nameOrig  oldbalanceOrg  newbalanceOrig  \\\n",
+       "0     1   PAYMENT   9839.64  C1231006815       170136.0       160296.36   \n",
+       "1     1   PAYMENT   1864.28  C1666544295        21249.0        19384.72   \n",
+       "2     1  TRANSFER    181.00  C1305486145          181.0            0.00   \n",
+       "3     1  CASH_OUT    181.00   C840083671          181.0            0.00   \n",
+       "4     1   PAYMENT  11668.14  C2048537720        41554.0        29885.86   \n",
+       "\n",
+       "      nameDest  oldbalanceDest  newbalanceDest  isFraud  isFlaggedFraud  \n",
+       "0  M1979787155             0.0             0.0        0               0  \n",
+       "1  M2044282225             0.0             0.0        0               0  \n",
+       "2   C553264065             0.0             0.0        1               0  \n",
+       "3    C38997010         21182.0             0.0        1               0  \n",
+       "4  M1230701703             0.0             0.0        0               0  "
+      ],
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>step</th>\n",
+       "      <th>type</th>\n",
+       "      <th>amount</th>\n",
+       "      <th>nameOrig</th>\n",
+       "      <th>oldbalanceOrg</th>\n",
+       "      <th>newbalanceOrig</th>\n",
+       "      <th>nameDest</th>\n",
+       "      <th>oldbalanceDest</th>\n",
+       "      <th>newbalanceDest</th>\n",
+       "      <th>isFraud</th>\n",
+       "      <th>isFlaggedFraud</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>1</td>\n",
+       "      <td>PAYMENT</td>\n",
+       "      <td>9839.64</td>\n",
+       "      <td>C1231006815</td>\n",
+       "      <td>170136.0</td>\n",
+       "      <td>160296.36</td>\n",
+       "      <td>M1979787155</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>1</td>\n",
+       "      <td>PAYMENT</td>\n",
+       "      <td>1864.28</td>\n",
+       "      <td>C1666544295</td>\n",
+       "      <td>21249.0</td>\n",
+       "      <td>19384.72</td>\n",
+       "      <td>M2044282225</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>1</td>\n",
+       "      <td>TRANSFER</td>\n",
+       "      <td>181.00</td>\n",
+       "      <td>C1305486145</td>\n",
+       "      <td>181.0</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>C553264065</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>1</td>\n",
+       "      <td>CASH_OUT</td>\n",
+       "      <td>181.00</td>\n",
+       "      <td>C840083671</td>\n",
+       "      <td>181.0</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>C38997010</td>\n",
+       "      <td>21182.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>1</td>\n",
+       "      <td>PAYMENT</td>\n",
+       "      <td>11668.14</td>\n",
+       "      <td>C2048537720</td>\n",
+       "      <td>41554.0</td>\n",
+       "      <td>29885.86</td>\n",
+       "      <td>M1230701703</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 8
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Podemos obtener un resumen de la estructura del DataFrame con info():",
+   "id": "21b6df56b6cba0b6"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:29:47.819304Z",
+     "start_time": "2025-03-06T04:29:47.773688Z"
+    }
+   },
+   "cell_type": "code",
+   "source": "df.info()",
+   "id": "6078de30700bab47",
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<class 'pandas.core.frame.DataFrame'>\n",
+      "RangeIndex: 6362620 entries, 0 to 6362619\n",
+      "Data columns (total 11 columns):\n",
+      " #   Column          Dtype  \n",
+      "---  ------          -----  \n",
+      " 0   step            int64  \n",
+      " 1   type            object \n",
+      " 2   amount          float64\n",
+      " 3   nameOrig        object \n",
+      " 4   oldbalanceOrg   float64\n",
+      " 5   newbalanceOrig  float64\n",
+      " 6   nameDest        object \n",
+      " 7   oldbalanceDest  float64\n",
+      " 8   newbalanceDest  float64\n",
+      " 9   isFraud         int64  \n",
+      " 10  isFlaggedFraud  int64  \n",
+      "dtypes: float64(5), int64(3), object(3)\n",
+      "memory usage: 534.0+ MB\n"
+     ]
+    }
+   ],
+   "execution_count": 9
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Para obtener un resumen estadístico de las columnas numéricas, utilizamos describe():",
+   "id": "6639e0055bfd50c2"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:30:03.863199Z",
+     "start_time": "2025-03-06T04:30:02.006467Z"
+    }
+   },
+   "cell_type": "code",
+   "source": "df.describe()",
+   "id": "2dee414d83ec5fe9",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "               step        amount  oldbalanceOrg  newbalanceOrig  \\\n",
+       "count  6.362620e+06  6.362620e+06   6.362620e+06    6.362620e+06   \n",
+       "mean   2.433972e+02  1.798619e+05   8.338831e+05    8.551137e+05   \n",
+       "std    1.423320e+02  6.038582e+05   2.888243e+06    2.924049e+06   \n",
+       "min    1.000000e+00  0.000000e+00   0.000000e+00    0.000000e+00   \n",
+       "25%    1.560000e+02  1.338957e+04   0.000000e+00    0.000000e+00   \n",
+       "50%    2.390000e+02  7.487194e+04   1.420800e+04    0.000000e+00   \n",
+       "75%    3.350000e+02  2.087215e+05   1.073152e+05    1.442584e+05   \n",
+       "max    7.430000e+02  9.244552e+07   5.958504e+07    4.958504e+07   \n",
+       "\n",
+       "       oldbalanceDest  newbalanceDest       isFraud  isFlaggedFraud  \n",
+       "count    6.362620e+06    6.362620e+06  6.362620e+06    6.362620e+06  \n",
+       "mean     1.100702e+06    1.224996e+06  1.290820e-03    2.514687e-06  \n",
+       "std      3.399180e+06    3.674129e+06  3.590480e-02    1.585775e-03  \n",
+       "min      0.000000e+00    0.000000e+00  0.000000e+00    0.000000e+00  \n",
+       "25%      0.000000e+00    0.000000e+00  0.000000e+00    0.000000e+00  \n",
+       "50%      1.327057e+05    2.146614e+05  0.000000e+00    0.000000e+00  \n",
+       "75%      9.430367e+05    1.111909e+06  0.000000e+00    0.000000e+00  \n",
+       "max      3.560159e+08    3.561793e+08  1.000000e+00    1.000000e+00  "
+      ],
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>step</th>\n",
+       "      <th>amount</th>\n",
+       "      <th>oldbalanceOrg</th>\n",
+       "      <th>newbalanceOrig</th>\n",
+       "      <th>oldbalanceDest</th>\n",
+       "      <th>newbalanceDest</th>\n",
+       "      <th>isFraud</th>\n",
+       "      <th>isFlaggedFraud</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>6.362620e+06</td>\n",
+       "      <td>6.362620e+06</td>\n",
+       "      <td>6.362620e+06</td>\n",
+       "      <td>6.362620e+06</td>\n",
+       "      <td>6.362620e+06</td>\n",
+       "      <td>6.362620e+06</td>\n",
+       "      <td>6.362620e+06</td>\n",
+       "      <td>6.362620e+06</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>2.433972e+02</td>\n",
+       "      <td>1.798619e+05</td>\n",
+       "      <td>8.338831e+05</td>\n",
+       "      <td>8.551137e+05</td>\n",
+       "      <td>1.100702e+06</td>\n",
+       "      <td>1.224996e+06</td>\n",
+       "      <td>1.290820e-03</td>\n",
+       "      <td>2.514687e-06</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>1.423320e+02</td>\n",
+       "      <td>6.038582e+05</td>\n",
+       "      <td>2.888243e+06</td>\n",
+       "      <td>2.924049e+06</td>\n",
+       "      <td>3.399180e+06</td>\n",
+       "      <td>3.674129e+06</td>\n",
+       "      <td>3.590480e-02</td>\n",
+       "      <td>1.585775e-03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>1.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>1.560000e+02</td>\n",
+       "      <td>1.338957e+04</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>2.390000e+02</td>\n",
+       "      <td>7.487194e+04</td>\n",
+       "      <td>1.420800e+04</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>1.327057e+05</td>\n",
+       "      <td>2.146614e+05</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>3.350000e+02</td>\n",
+       "      <td>2.087215e+05</td>\n",
+       "      <td>1.073152e+05</td>\n",
+       "      <td>1.442584e+05</td>\n",
+       "      <td>9.430367e+05</td>\n",
+       "      <td>1.111909e+06</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>7.430000e+02</td>\n",
+       "      <td>9.244552e+07</td>\n",
+       "      <td>5.958504e+07</td>\n",
+       "      <td>4.958504e+07</td>\n",
+       "      <td>3.560159e+08</td>\n",
+       "      <td>3.561793e+08</td>\n",
+       "      <td>1.000000e+00</td>\n",
+       "      <td>1.000000e+00</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 10
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": [
+    "En la columna isFraud, los valores 1 indican transacciones fraudulentas, mientras que los\n",
+    "valores 0 corresponden a transacciones legítimas. Podemos contar la cantidad de fraudes\n",
+    "y transacciones no fraudulentas de la siguiente manera:"
+   ],
+   "id": "25aa26dbb606f4f8"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:30:49.893922Z",
+     "start_time": "2025-03-06T04:30:49.538198Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "cant_fraudes = sum(df[\"isFraud\"])\n",
+    "print(f\"Cantidad de fraudes: {cant_fraudes}\")\n",
+    "cant_NO_fraudes = len(df) - cant_fraudes\n",
+    "print(f\"Cantidad de NO fraudes: {cant_NO_fraudes}\")"
+   ],
+   "id": "76b7fe800f0a5a20",
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Cantidad de fraudes: 8213\n",
+      "Cantidad de NO fraudes: 6354407\n"
+     ]
+    }
+   ],
+   "execution_count": 11
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "**Preparación de los datosPreparación de los datos**",
+   "id": "6be1c5b7b283aab1"
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Eliminación de variables",
+   "id": "66195bf93892837a"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:34:04.755860Z",
+     "start_time": "2025-03-06T04:34:04.531337Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "# Lista de columnas a eliminar\n",
+    "columnas_a_eliminar = ['step', 'nameOrig', 'nameDest']\n",
+    "# Eliminar las columnas del DataFrame\n",
+    "df = df.drop(columns=columnas_a_eliminar)\n",
+    "# Verificamos que las columnas se eliminaron\n",
+    "df.head()"
+   ],
+   "id": "93b2813c3535bee9",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "       type    amount  oldbalanceOrg  newbalanceOrig  oldbalanceDest  \\\n",
+       "0   PAYMENT   9839.64       170136.0       160296.36             0.0   \n",
+       "1   PAYMENT   1864.28        21249.0        19384.72             0.0   \n",
+       "2  TRANSFER    181.00          181.0            0.00             0.0   \n",
+       "3  CASH_OUT    181.00          181.0            0.00         21182.0   \n",
+       "4   PAYMENT  11668.14        41554.0        29885.86             0.0   \n",
+       "\n",
+       "   newbalanceDest  isFraud  isFlaggedFraud  \n",
+       "0             0.0        0               0  \n",
+       "1             0.0        0               0  \n",
+       "2             0.0        1               0  \n",
+       "3             0.0        1               0  \n",
+       "4             0.0        0               0  "
+      ],
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>type</th>\n",
+       "      <th>amount</th>\n",
+       "      <th>oldbalanceOrg</th>\n",
+       "      <th>newbalanceOrig</th>\n",
+       "      <th>oldbalanceDest</th>\n",
+       "      <th>newbalanceDest</th>\n",
+       "      <th>isFraud</th>\n",
+       "      <th>isFlaggedFraud</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>PAYMENT</td>\n",
+       "      <td>9839.64</td>\n",
+       "      <td>170136.0</td>\n",
+       "      <td>160296.36</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>PAYMENT</td>\n",
+       "      <td>1864.28</td>\n",
+       "      <td>21249.0</td>\n",
+       "      <td>19384.72</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>TRANSFER</td>\n",
+       "      <td>181.00</td>\n",
+       "      <td>181.0</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>CASH_OUT</td>\n",
+       "      <td>181.00</td>\n",
+       "      <td>181.0</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>21182.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>PAYMENT</td>\n",
+       "      <td>11668.14</td>\n",
+       "      <td>41554.0</td>\n",
+       "      <td>29885.86</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 12
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Manejo de Valores Nulos",
+   "id": "f72da018dcbb240e"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:34:55.769974Z",
+     "start_time": "2025-03-06T04:34:55.489896Z"
+    }
+   },
+   "cell_type": "code",
+   "source": "df.isnull().sum()",
+   "id": "36aa4678def29bc0",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "type              0\n",
+       "amount            0\n",
+       "oldbalanceOrg     0\n",
+       "newbalanceOrig    0\n",
+       "oldbalanceDest    0\n",
+       "newbalanceDest    0\n",
+       "isFraud           0\n",
+       "isFlaggedFraud    0\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 13
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Manejo de Duplicados",
+   "id": "e36152be41b67f44"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:36:07.869945Z",
+     "start_time": "2025-03-06T04:36:00.540681Z"
+    }
+   },
+   "cell_type": "code",
+   "source": "num_duplicados = df.duplicated().sum()",
+   "id": "6e59884620750c40",
+   "outputs": [],
+   "execution_count": 14
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:36:42.995041Z",
+     "start_time": "2025-03-06T04:36:36.309318Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "# Ver ejemplos de filas duplicadas\n",
+    "duplicados = df[df.duplicated()]\n",
+    "# Contar cuántos de los duplicados son fraudes y cuántos no\n",
+    "duplicados_fraude = duplicados['isFraud'].sum()\n",
+    "duplicados_no_fraude = len(duplicados) - duplicados_fraude\n",
+    "# Mostrar resultados\n",
+    "{\n",
+    "\"Total de duplicados\": num_duplicados,\n",
+    "\"Duplicados que son fraude\": duplicados_fraude,\n",
+    "\"Duplicados que no son fraude\": duplicados_no_fraude\n",
+    "}"
+   ],
+   "id": "ae5b90ec3d0e6e82",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'Total de duplicados': np.int64(97880),\n",
+       " 'Duplicados que son fraude': np.int64(61),\n",
+       " 'Duplicados que no son fraude': np.int64(97819)}"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 15
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": [
+    "Como estos duplicados parecen no aportar valor, podemos eliminarlos y como solo hay 61\n",
+    "fraudes en los duplicados, no afectaría mucho al análisis."
+   ],
+   "id": "69663debfcff0e02"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:41:59.904253Z",
+     "start_time": "2025-03-06T04:41:52.356679Z"
+    }
+   },
+   "cell_type": "code",
+   "source": "df = df.drop_duplicates()",
+   "id": "386250864f236777",
+   "outputs": [],
+   "execution_count": 16
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Podemos resetear los índices",
+   "id": "50b0182f719c348a"
+  },
+  {
+   "metadata": {},
+   "cell_type": "code",
+   "outputs": [],
+   "execution_count": null,
+   "source": "df = df.reset_index(drop=True)",
+   "id": "afc4e4878bae4d9e"
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Tratamiento de valores atípicos",
+   "id": "a7d87e5415a708a6"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:45:01.338594Z",
+     "start_time": "2025-03-06T04:45:00.306794Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "import numpy as np\n",
+    "# Seleccionar las columnas numéricas\n",
+    "columnas_numericas = ['amount', 'oldbalanceOrg', 'newbalanceOrig',\n",
+    "\n",
+    "'oldbalanceDest', 'newbalanceDest']\n",
+    "\n",
+    "# Inicializar un diccionario para almacenar el conteo de valores atípicos\n",
+    "conteo_outliers = {}\n",
+    "# Iterar sobre cada columna numérica\n",
+    "for columna in columnas_numericas:\n",
+    "    # Calcular el primer y tercer cuartil (Q1 y Q3)\n",
+    "    Q1 = df[columna].quantile(0.25)\n",
+    "    Q3 = df[columna].quantile(0.75)\n",
+    "    # Calcular el rango intercuartílico (IQR)\n",
+    "    IQR = Q3 - Q1\n",
+    "    # Definir los límites inferior y superior para los valores atípicos\n",
+    "    limite_inferior = Q1 - 1.5 * IQR\n",
+    "    limite_superior = Q3 + 1.5 * IQR\n",
+    "    # Contar los valores atípicos\n",
+    "    outliers = df[(df[columna] < limite_inferior) | \\\n",
+    "        (df[columna] > limite_superior)]\n",
+    "    conteo_outliers[columna] = outliers.shape[0]\n",
+    "# Mostrar el conteo de valores atípicos por columna\n",
+    "for columna, conteo in conteo_outliers.items():\n",
+    "    print(f'Columna {columna}: {conteo} valores atípicos')\n",
+    "total_outliers = sum(conteo_outliers.values())\n",
+    "print(f\"\\nTotal de valores atípicos: {total_outliers}\")\n",
+    "print(f\"El {total_outliers/len(df)}% de los valores son atípicos\")"
+   ],
+   "id": "202dde724bcdc748",
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Columna amount: 331341 valores atípicos\n",
+      "Columna oldbalanceOrg: 1098406 valores atípicos\n",
+      "Columna newbalanceOrig: 1031683 valores atípicos\n",
+      "Columna oldbalanceDest: 767481 valores atípicos\n",
+      "Columna newbalanceDest: 720912 valores atípicos\n",
+      "\n",
+      "Total de valores atípicos: 3949823\n",
+      "El 0.6304847447779157% de los valores son atípicos\n"
+     ]
+    }
+   ],
+   "execution_count": 18
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Tabla de contingencia",
+   "id": "ce0f86dcc576f339"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:49:57.927072Z",
+     "start_time": "2025-03-06T04:49:55.105641Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "# Diccionarios para almacenar los resultados\n",
+    "proporcion_outliers_fraude = {}\n",
+    "proporcion_outliers_no_fraude = {}\n",
+    "\n",
+    "# Iterar sobre cada columna numérica\n",
+    "for columna in columnas_numericas:\n",
+    "    # Calcular IQR y límites para valores atípicos\n",
+    "    Q1 = df[columna].quantile(0.25)\n",
+    "    Q3 = df[columna].quantile(0.75)\n",
+    "    IQR = Q3 - Q1\n",
+    "    limite_inferior = Q1 - 1.5 * IQR\n",
+    "    limite_superior = Q3 + 1.5 * IQR\n",
+    "\n",
+    "    # Identificar valores atípicos\n",
+    "    outliers = (df[columna] < limite_inferior) | (df[columna] > limite_superior)\n",
+    "\n",
+    "    # Contar la proporción de valores atípicos en fraudes y no fraudes\n",
+    "    proporcion_outliers_fraude[columna] = df[outliers & (df['isFraud'] == 1)].shape[0] / df[df['isFraud'] == 1].shape[0]\n",
+    "    proporcion_outliers_no_fraude[columna] = df[outliers & (df['isFraud'] == 0)].shape[0] / df[df['isFraud'] == 0].shape[0]\n",
+    "\n",
+    "# Crear DataFrame con los resultados\n",
+    "df_proporcion_outliers = pd.DataFrame({\n",
+    "    'Proporción en fraudes': proporcion_outliers_fraude,\n",
+    "    'Proporción en no fraudes': proporcion_outliers_no_fraude\n",
+    "})\n",
+    "\n",
+    "df_proporcion_outliers\n"
+   ],
+   "id": "bd26e460bd48827a",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "                Proporción en fraudes  Proporción en no fraudes\n",
+       "amount                       0.463199                  0.052355\n",
+       "oldbalanceOrg                0.594701                  0.174785\n",
+       "newbalanceOrig               0.019014                  0.164871\n",
+       "oldbalanceDest               0.054956                  0.122596\n",
+       "newbalanceDest               0.126840                  0.115059"
+      ],
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Proporción en fraudes</th>\n",
+       "      <th>Proporción en no fraudes</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>amount</th>\n",
+       "      <td>0.463199</td>\n",
+       "      <td>0.052355</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>oldbalanceOrg</th>\n",
+       "      <td>0.594701</td>\n",
+       "      <td>0.174785</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>newbalanceOrig</th>\n",
+       "      <td>0.019014</td>\n",
+       "      <td>0.164871</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>oldbalanceDest</th>\n",
+       "      <td>0.054956</td>\n",
+       "      <td>0.122596</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>newbalanceDest</th>\n",
+       "      <td>0.126840</td>\n",
+       "      <td>0.115059</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 19
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "CHI2",
+   "id": "25067b20df23c417"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:56:27.106834Z",
+     "start_time": "2025-03-06T04:56:22.311036Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "import scipy.stats as stats\n",
+    "\n",
+    "# Diccionario para almacenar los resultados de la prueba de Chi-cuadrado\n",
+    "chi2_results = {}\n",
+    "\n",
+    "# Copia del DataFrame original\n",
+    "df_Hip = df.copy()\n",
+    "\n",
+    "# Iterar sobre cada columna numérica\n",
+    "for columna in columnas_numericas:\n",
+    "    # Calcular IQR y límites para valores atípicos\n",
+    "    Q1 = df_Hip[columna].quantile(0.25)\n",
+    "    Q3 = df_Hip[columna].quantile(0.75)\n",
+    "    IQR = Q3 - Q1\n",
+    "    limite_inferior = Q1 - 1.5 * IQR\n",
+    "    limite_superior = Q3 + 1.5 * IQR\n",
+    "\n",
+    "    # Crear una columna binaria indicando si es un valor atípico o no\n",
+    "    df_Hip[f\"{columna}_outlier\"] = (df_Hip[columna] < limite_inferior) | (df_Hip[columna] > limite_superior)\n",
+    "\n",
+    "    # Construir tabla de contingencia\n",
+    "    tabla_contingencia = pd.crosstab(df_Hip[f\"{columna}_outlier\"], df_Hip[\"isFraud\"])\n",
+    "\n",
+    "    # Prueba de Chi-cuadrado\n",
+    "    chi2_stat, p_valor, _, _ = stats.chi2_contingency(tabla_contingencia)\n",
+    "\n",
+    "    # Guardar los resultados\n",
+    "    chi2_results[columna] = {'Chi2': chi2_stat, 'p-valor': p_valor}\n",
+    "\n",
+    "# Convertir los resultados a DataFrame y mostrarlos\n",
+    "df_chi2_results = pd.DataFrame(chi2_results).T\n",
+    "df_chi2_results\n"
+   ],
+   "id": "6002b059a7b464b0",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "                        Chi2        p-valor\n",
+       "amount          27425.218630   0.000000e+00\n",
+       "oldbalanceOrg    9925.593149   0.000000e+00\n",
+       "newbalanceOrig   1258.031500  1.491697e-275\n",
+       "oldbalanceDest    345.869212   3.362733e-77\n",
+       "newbalanceDest     10.980585   9.207136e-04"
+      ],
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Chi2</th>\n",
+       "      <th>p-valor</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>amount</th>\n",
+       "      <td>27425.218630</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>oldbalanceOrg</th>\n",
+       "      <td>9925.593149</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>newbalanceOrig</th>\n",
+       "      <td>1258.031500</td>\n",
+       "      <td>1.491697e-275</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>oldbalanceDest</th>\n",
+       "      <td>345.869212</td>\n",
+       "      <td>3.362733e-77</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>newbalanceDest</th>\n",
+       "      <td>10.980585</td>\n",
+       "      <td>9.207136e-04</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 21
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Creación de nuevas variables",
+   "id": "82d9283b57f4dcbd"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:56:33.446051Z",
+     "start_time": "2025-03-06T04:56:32.928614Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "# Crear nuevas variables binarias indicando si cada transacción es un valor\n",
+    "# atípico en 'amount' y 'oldbalanceOrg'\n",
+    "df_outliers = df.copy()\n",
+    "\n",
+    "# Definir los límites de valores atípicos usando el método del Rango Intercuartílico (IQR)\n",
+    "for columna in ['amount', 'oldbalanceOrg']:\n",
+    "    Q1 = df_outliers[columna].quantile(0.25)\n",
+    "    Q3 = df_outliers[columna].quantile(0.75)\n",
+    "    IQR = Q3 - Q1\n",
+    "    limite_inferior = Q1 - 1.5 * IQR\n",
+    "    limite_superior = Q3 + 1.5 * IQR\n",
+    "\n",
+    "    # Crear una nueva columna indicando si el valor es atípico (1) o no (0)\n",
+    "    df_outliers[f'{columna}_outlier'] = ((df_outliers[columna] < limite_inferior) |\n",
+    "                                         (df_outliers[columna] > limite_superior)).astype(int)\n",
+    "\n",
+    "# Verificar que las nuevas columnas fueron añadidas correctamente\n",
+    "df_outliers.head()\n"
+   ],
+   "id": "45944311d115a844",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "       type    amount  oldbalanceOrg  newbalanceOrig  oldbalanceDest  \\\n",
+       "0   PAYMENT   9839.64       170136.0       160296.36             0.0   \n",
+       "1   PAYMENT   1864.28        21249.0        19384.72             0.0   \n",
+       "2  TRANSFER    181.00          181.0            0.00             0.0   \n",
+       "3  CASH_OUT    181.00          181.0            0.00         21182.0   \n",
+       "4   PAYMENT  11668.14        41554.0        29885.86             0.0   \n",
+       "\n",
+       "   newbalanceDest  isFraud  isFlaggedFraud  amount_outlier  \\\n",
+       "0             0.0        0               0               0   \n",
+       "1             0.0        0               0               0   \n",
+       "2             0.0        1               0               0   \n",
+       "3             0.0        1               0               0   \n",
+       "4             0.0        0               0               0   \n",
+       "\n",
+       "   oldbalanceOrg_outlier  \n",
+       "0                      0  \n",
+       "1                      0  \n",
+       "2                      0  \n",
+       "3                      0  \n",
+       "4                      0  "
+      ],
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>type</th>\n",
+       "      <th>amount</th>\n",
+       "      <th>oldbalanceOrg</th>\n",
+       "      <th>newbalanceOrig</th>\n",
+       "      <th>oldbalanceDest</th>\n",
+       "      <th>newbalanceDest</th>\n",
+       "      <th>isFraud</th>\n",
+       "      <th>isFlaggedFraud</th>\n",
+       "      <th>amount_outlier</th>\n",
+       "      <th>oldbalanceOrg_outlier</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>PAYMENT</td>\n",
+       "      <td>9839.64</td>\n",
+       "      <td>170136.0</td>\n",
+       "      <td>160296.36</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>PAYMENT</td>\n",
+       "      <td>1864.28</td>\n",
+       "      <td>21249.0</td>\n",
+       "      <td>19384.72</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>TRANSFER</td>\n",
+       "      <td>181.00</td>\n",
+       "      <td>181.0</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>CASH_OUT</td>\n",
+       "      <td>181.00</td>\n",
+       "      <td>181.0</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>21182.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>PAYMENT</td>\n",
+       "      <td>11668.14</td>\n",
+       "      <td>41554.0</td>\n",
+       "      <td>29885.86</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ]
+     },
+     "execution_count": 22,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 22
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Codificación de Variables Categóricas",
+   "id": "b688ae5f6f9f89b3"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:56:54.724776Z",
+     "start_time": "2025-03-06T04:56:53.366651Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "df_OH = pd.get_dummies(df_outliers, columns=['type'])\n",
+    "df_OH[[\"type_CASH_IN\", \"type_CASH_OUT\", \"type_DEBIT\",\n",
+    "\"type_PAYMENT\", \"type_TRANSFER\"]].head()"
+   ],
+   "id": "15debcfa73f54984",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "   type_CASH_IN  type_CASH_OUT  type_DEBIT  type_PAYMENT  type_TRANSFER\n",
+       "0         False          False       False          True          False\n",
+       "1         False          False       False          True          False\n",
+       "2         False          False       False         False           True\n",
+       "3         False           True       False         False          False\n",
+       "4         False          False       False          True          False"
+      ],
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>type_CASH_IN</th>\n",
+       "      <th>type_CASH_OUT</th>\n",
+       "      <th>type_DEBIT</th>\n",
+       "      <th>type_PAYMENT</th>\n",
+       "      <th>type_TRANSFER</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ]
+     },
+     "execution_count": 23,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 23
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Conversión de variables",
+   "id": "fb2c8b53d44bc0b6"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:59:06.880505Z",
+     "start_time": "2025-03-06T04:59:05.315476Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "# Aplicar one-hot encoding a la columna 'type'\n",
+    "df_OH = pd.get_dummies(df_outliers, columns=['type'])\n",
+    "\n",
+    "# Mostrar las primeras filas de las nuevas columnas generadas\n",
+    "df_OH[[\"type_CASH_IN\", \"type_CASH_OUT\", \"type_DEBIT\",\n",
+    "       \"type_PAYMENT\", \"type_TRANSFER\"]].head()\n",
+    "\n"
+   ],
+   "id": "b24808dd1fe7b3c9",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "   type_CASH_IN  type_CASH_OUT  type_DEBIT  type_PAYMENT  type_TRANSFER\n",
+       "0         False          False       False          True          False\n",
+       "1         False          False       False          True          False\n",
+       "2         False          False       False         False           True\n",
+       "3         False           True       False         False          False\n",
+       "4         False          False       False          True          False"
+      ],
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>type_CASH_IN</th>\n",
+       "      <th>type_CASH_OUT</th>\n",
+       "      <th>type_DEBIT</th>\n",
+       "      <th>type_PAYMENT</th>\n",
+       "      <th>type_TRANSFER</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ]
+     },
+     "execution_count": 24,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 24
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Conversión de variables",
+   "id": "ad68bb3593081b6b"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:59:21.799086Z",
+     "start_time": "2025-03-06T04:59:21.789222Z"
+    }
+   },
+   "cell_type": "code",
+   "source": "df_OH.dtypes",
+   "id": "eca3ccb8fef8109e",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "amount                   float64\n",
+       "oldbalanceOrg            float64\n",
+       "newbalanceOrig           float64\n",
+       "oldbalanceDest           float64\n",
+       "newbalanceDest           float64\n",
+       "isFraud                    int64\n",
+       "isFlaggedFraud             int64\n",
+       "amount_outlier             int64\n",
+       "oldbalanceOrg_outlier      int64\n",
+       "type_CASH_IN                bool\n",
+       "type_CASH_OUT               bool\n",
+       "type_DEBIT                  bool\n",
+       "type_PAYMENT                bool\n",
+       "type_TRANSFER               bool\n",
+       "dtype: object"
+      ]
+     },
+     "execution_count": 25,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 25
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T04:59:32.831714Z",
+     "start_time": "2025-03-06T04:59:32.757432Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "columnas_booleanas = df_OH.select_dtypes(include=['bool']).columns\n",
+    "df_OH[columnas_booleanas] = df_OH[columnas_booleanas].astype(np.uint8)"
+   ],
+   "id": "efa806bbc6e95327",
+   "outputs": [],
+   "execution_count": 26
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "División de los datos en entrenamiento y prueba",
+   "id": "21b41c8e9535ea34"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T05:00:49.704319Z",
+     "start_time": "2025-03-06T05:00:43.654471Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "from sklearn.model_selection import train_test_split\n",
+    "# Separar características y variable objetivo\n",
+    "X = df_OH.drop(columns=['isFraud'])\n",
+    "y = df_OH['isFraud']\n",
+    "# Dividir en conjunto de entrenamiento (90%) y prueba (10%)\n",
+    "# con estratificación\n",
+    "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1,stratify=y,\n",
+    "random_state=42)"
+   ],
+   "id": "9ce003d04760793e",
+   "outputs": [],
+   "execution_count": 27
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "comprobar la estratificación.",
+   "id": "87abcaa91dde9686"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T05:01:13.106403Z",
+     "start_time": "2025-03-06T05:01:11.792769Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "# Ver la relación entre fraudes y NO fraudes para el conjunto de prueba\n",
+    "cant_fraudes_test = sum(y_test)\n",
+    "cant_NO_fraudes_test = len(y_test)-sum(y_test)\n",
+    "proporcion_test = sum(y_test)/(len(y_test)-sum(y_test))\n",
+    "print(f\"Cantidad de fraudes en el conjunto de prueba: \\\n",
+    "{cant_fraudes_test}\")\n",
+    "print(f\"Cantidad de NO fraudes en el conjunto de prueba: \\\n",
+    "{cant_NO_fraudes_test}\")\n",
+    "print(f\"Proporción (fraudes)/(NO fraudes) en el conjunto de prueba: \\\n",
+    "{proporcion_test:.6f}\")\n",
+    "# Ver la relación entre fraudes y NO fraudes para el\n",
+    "# conjunto de entrenamiento\n",
+    "cant_fraudes_train = sum(y_train)\n",
+    "cant_NO_fraudes_train = len(y_train)-sum(y_train)\n",
+    "proporcion_train = sum(y_train)/(len(y_train)-sum(y_train))\n",
+    "print(f\"Cantidad de fraudes en el conjunto de entrenamiento: \\\n",
+    "{cant_fraudes_train}\")\n",
+    "print(f\"Cantidad de NO fraudes en el conjunto de entrenamiento: \\\n",
+    "{cant_NO_fraudes_train}\")\n",
+    "print(f\"Proporción (fraudes)/(NO fraudes) en el conjunto de entrenamiento: \\\n",
+    "{proporcion_train:.6f}\")"
+   ],
+   "id": "458308acc5ec9528",
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Cantidad de fraudes en el conjunto de prueba: 815\n",
+      "Cantidad de NO fraudes en el conjunto de prueba: 625659\n",
+      "Proporción (fraudes)/(NO fraudes) en el conjunto de prueba: 0.001303\n",
+      "Cantidad de fraudes en el conjunto de entrenamiento: 7337\n",
+      "Cantidad de NO fraudes en el conjunto de entrenamiento: 5630929\n",
+      "Proporción (fraudes)/(NO fraudes) en el conjunto de entrenamiento: 0.001303\n"
+     ]
+    }
+   ],
+   "execution_count": 28
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Estandarizar variables numéricas",
+   "id": "9d14cd8c0be04e90"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T05:02:09.412579Z",
+     "start_time": "2025-03-06T05:02:08.615032Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "from sklearn.preprocessing import StandardScaler\n",
+    "# Identificar columnas numéricas\n",
+    "columnas_numericas = X_train.select_dtypes(include=['float64']).columns\n",
+    "columnas_categoricas = X_train.select_dtypes(exclude=['float64']).columns\n",
+    "# Ajustar el escalador solo en las columnas numéricas\n",
+    "# El scaler se ajusta sólo con el conjunto de entrenamiento\n",
+    "scaler = StandardScaler()\n",
+    "# Solo transformar numéricas\n",
+    "X_train_numericas = scaler.fit_transform(X_train[columnas_numericas])\n",
+    "# Aplicar el mismo escalado en prueba\n",
+    "X_test_numericas = scaler.transform(X_test[columnas_numericas])"
+   ],
+   "id": "a3f5dc244e46dc9c",
+   "outputs": [],
+   "execution_count": 29
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": [
+    "Cuando usamos StandardScaler, este devuelve un array de NumPy, por lo que necesitamos\n",
+    "convertirlo de nuevo en un DataFrame de Pandas, asegurando que las columnas tengan\n",
+    "los mismos nombres que el original."
+   ],
+   "id": "a7570e1d9b23a22f"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T05:05:31.984499Z",
+     "start_time": "2025-03-06T05:05:31.469520Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "# Convertir de nuevo a DataFrame incluyendo las categóricas sin modificar\n",
+    "X_train_scaled = pd.DataFrame(X_train_numericas,\n",
+    "\n",
+    "columns=columnas_numericas,\n",
+    "index=X_train.index)\n",
+    "X_test_scaled = pd.DataFrame(X_test_numericas,\n",
+    "\n",
+    "columns=columnas_numericas,\n",
+    "index=X_test.index)\n",
+    "# Añadir columnas categóricas de nuevo sin modificar\n",
+    "X_train_scaled[columnas_categoricas] = X_train[columnas_categoricas].values\n",
+    "X_test_scaled[columnas_categoricas] = X_test[columnas_categoricas].values"
+   ],
+   "id": "7d6f48a9a28180e3",
+   "outputs": [],
+   "execution_count": 30
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "Balanceo de clases",
+   "id": "1bf8640ddfea175d"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T05:07:07.430105Z",
+     "start_time": "2025-03-06T05:07:01.376586Z"
+    }
+   },
+   "cell_type": "code",
+   "source": [
+    "from imblearn.over_sampling import SMOTE\n",
+    "\n",
+    "# Aplicar SMOTE en el conjunto de entrenamiento (sin afectar el conjunto de prueba)\n",
+    "smote = SMOTE(sampling_strategy=0.3, random_state=42)  # Aumenta la cantidad de fraudes\n",
+    "X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)\n",
+    "\n",
+    "# Verificar la nueva distribución de clases después de SMOTE\n",
+    "print(\"Distribución de clases después de SMOTE en entrenamiento:\")\n",
+    "print(y_train_resampled.value_counts())\n",
+    "\n",
+    "# Ver la relación entre fraudes y NO fraudes para el conjunto de prueba\n",
+    "cant_fraudes_test = y_train_resampled.value_counts()[1]\n",
+    "cant_NO_fraudes_test = y_train_resampled.value_counts()[0]\n",
+    "\n",
+    "# Calcular la proporción de fraudes en el conjunto de prueba\n",
+    "proporcion_test = sum(y_test) / (len(y_test) - sum(y_test))\n",
+    "\n",
+    "print(f\"Cantidad de fraudes en el conjunto de prueba: {cant_fraudes_test}\")\n",
+    "print(f\"Cantidad de NO fraudes en el conjunto de prueba: {cant_NO_fraudes_test}\")\n",
+    "print(f\"Proporción (fraudes)/(NO fraudes) después de usar SMOTE: {cant_fraudes_test / cant_NO_fraudes_test:.4f}\")\n"
+   ],
+   "id": "2d948e327daed328",
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Distribución de clases después de SMOTE en entrenamiento:\n",
+      "isFraud\n",
+      "0    5630929\n",
+      "1    1689278\n",
+      "Name: count, dtype: int64\n",
+      "Cantidad de fraudes en el conjunto de prueba: 1689278\n",
+      "Cantidad de NO fraudes en el conjunto de prueba: 5630929\n",
+      "Proporción (fraudes)/(NO fraudes) después de usar SMOTE: 0.3000\n"
+     ]
+    }
+   ],
+   "execution_count": 32
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "visualizar el conjunto final:",
+   "id": "97b0574d3432db6e"
+  },
+  {
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-06T05:19:48.265653Z",
+     "start_time": "2025-03-06T05:19:48.247027Z"
+    }
+   },
+   "cell_type": "code",
+   "source": "X_train_resampled",
+   "id": "6a2693d415f12a88",
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "                amount  oldbalanceOrg  newbalanceOrig  oldbalanceDest  \\\n",
+       "0         19347.830000       0.000000            0.00        0.000000   \n",
+       "1         51466.860000  271622.530000       323089.39   555132.820000   \n",
+       "2         90329.200000   22238.000000       112567.20   670508.350000   \n",
+       "3          3686.200000  143265.890000       139579.69        0.000000   \n",
+       "4         72934.160000       0.000000            0.00   263995.430000   \n",
+       "...                ...            ...             ...             ...   \n",
+       "7320202  141816.382294  141816.382294            0.00   440217.634757   \n",
+       "7320203   39981.153655   39981.153655            0.00        0.000000   \n",
+       "7320204  669158.281957  669158.281957            0.00        0.000000   \n",
+       "7320205  904648.780816  904648.780816            0.00    81769.689819   \n",
+       "7320206  388362.513433  388362.513433            0.00        0.000000   \n",
+       "\n",
+       "         newbalanceDest  isFlaggedFraud  amount_outlier  \\\n",
+       "0              0.000000               0               0   \n",
+       "1         503665.950000               0               0   \n",
+       "2         580179.150000               0               0   \n",
+       "3              0.000000               0               0   \n",
+       "4         286457.370000               0               0   \n",
+       "...                 ...             ...             ...   \n",
+       "7320202   582034.017051               0               0   \n",
+       "7320203        0.000000               0               0   \n",
+       "7320204   669158.281957               0               1   \n",
+       "7320205   986418.472132               0               1   \n",
+       "7320206   388362.513433               0               0   \n",
+       "\n",
+       "         oldbalanceOrg_outlier  type_CASH_IN  type_CASH_OUT  type_DEBIT  \\\n",
+       "0                            0             0              0           0   \n",
+       "1                            0             1              0           0   \n",
+       "2                            0             1              0           0   \n",
+       "3                            0             0              0           0   \n",
+       "4                            0             0              1           0   \n",
+       "...                        ...           ...            ...         ...   \n",
+       "7320202                      0             0              1           0   \n",
+       "7320203                      0             0              0           0   \n",
+       "7320204                      1             0              1           0   \n",
+       "7320205                      1             0              1           0   \n",
+       "7320206                      1             0              1           0   \n",
+       "\n",
+       "         type_PAYMENT  type_TRANSFER  \n",
+       "0                   1              0  \n",
+       "1                   0              0  \n",
+       "2                   0              0  \n",
+       "3                   1              0  \n",
+       "4                   0              0  \n",
+       "...               ...            ...  \n",
+       "7320202             0              0  \n",
+       "7320203             0              1  \n",
+       "7320204             0              0  \n",
+       "7320205             0              0  \n",
+       "7320206             0              0  \n",
+       "\n",
+       "[7320207 rows x 13 columns]"
+      ],
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>amount</th>\n",
+       "      <th>oldbalanceOrg</th>\n",
+       "      <th>newbalanceOrig</th>\n",
+       "      <th>oldbalanceDest</th>\n",
+       "      <th>newbalanceDest</th>\n",
+       "      <th>isFlaggedFraud</th>\n",
+       "      <th>amount_outlier</th>\n",
+       "      <th>oldbalanceOrg_outlier</th>\n",
+       "      <th>type_CASH_IN</th>\n",
+       "      <th>type_CASH_OUT</th>\n",
+       "      <th>type_DEBIT</th>\n",
+       "      <th>type_PAYMENT</th>\n",
+       "      <th>type_TRANSFER</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>19347.830000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>51466.860000</td>\n",
+       "      <td>271622.530000</td>\n",
+       "      <td>323089.39</td>\n",
+       "      <td>555132.820000</td>\n",
+       "      <td>503665.950000</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>90329.200000</td>\n",
+       "      <td>22238.000000</td>\n",
+       "      <td>112567.20</td>\n",
+       "      <td>670508.350000</td>\n",
+       "      <td>580179.150000</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>3686.200000</td>\n",
+       "      <td>143265.890000</td>\n",
+       "      <td>139579.69</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>72934.160000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>263995.430000</td>\n",
+       "      <td>286457.370000</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7320202</th>\n",
+       "      <td>141816.382294</td>\n",
+       "      <td>141816.382294</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>440217.634757</td>\n",
+       "      <td>582034.017051</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7320203</th>\n",
+       "      <td>39981.153655</td>\n",
+       "      <td>39981.153655</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7320204</th>\n",
+       "      <td>669158.281957</td>\n",
+       "      <td>669158.281957</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>669158.281957</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7320205</th>\n",
+       "      <td>904648.780816</td>\n",
+       "      <td>904648.780816</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>81769.689819</td>\n",
+       "      <td>986418.472132</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7320206</th>\n",
+       "      <td>388362.513433</td>\n",
+       "      <td>388362.513433</td>\n",
+       "      <td>0.00</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>388362.513433</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>7320207 rows × 13 columns</p>\n",
+       "</div>"
+      ]
+     },
+     "execution_count": 36,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "execution_count": 36
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "",
+   "id": "cd5e72c0f27b529f"
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 2
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython2",
+   "version": "2.7.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
